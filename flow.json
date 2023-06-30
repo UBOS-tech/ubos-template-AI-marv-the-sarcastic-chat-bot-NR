@@ -1,1 +1,151 @@
-[]
+[
+    {
+        "id": "6d30ac04c610232c",
+        "type": "tab",
+        "label": "Marv the sarcastic chat bot",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "2f3feef9ef5f6d71",
+        "type": "http in",
+        "z": "6d30ac04c610232c",
+        "name": "",
+        "url": "/createMarvSarcastic",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 60,
+        "wires": [
+            [
+                "f40eb5fc032a2377"
+            ]
+        ]
+    },
+    {
+        "id": "f40eb5fc032a2377",
+        "type": "function",
+        "z": "6d30ac04c610232c",
+        "name": "OpenAI API properties",
+        "func": "\n//const api_key = global.get('process_env').OPENAI_API\nconst api_key = msg.payload.key;\nconst content = msg.payload.text;\n\n// OpenAI API properties\nconst settings = {\n    model: \"text-davinci-003\",\n    prompt: content,\n    max_tokens: 60,\n    temperature: 0.5,\n    top_p: 0.3,\n    frequency_penalty: 0.5,\n    presence_penalty: 0.0,\n    stop: [\"###\"]\n\n};\n\nif (api_key) {\n    msg.url = 'https://api.openai.com/v1/completions';\n    msg.headers = {\n        'Content-Type': 'application/json',\n        'Authorization': `Bearer ${api_key}`,\n    };\n    msg.payload = settings;\n    msg.settings = settings;\n    return [msg, null];\n} else {\n    msg.payload = settings;\n    msg.settings = settings;\n    return [null, msg];\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 60,
+        "wires": [
+            [
+                "b98b9f1e91f34775"
+            ],
+            [
+                "6f15f9333dcfcd79"
+            ]
+        ]
+    },
+    {
+        "id": "b98b9f1e91f34775",
+        "type": "http request",
+        "z": "6d30ac04c610232c",
+        "name": "OpenAI API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 670,
+        "y": 60,
+        "wires": [
+            [
+                "3f07c831b53c3c6a"
+            ]
+        ]
+    },
+    {
+        "id": "3f07c831b53c3c6a",
+        "type": "function",
+        "z": "6d30ac04c610232c",
+        "name": "Response",
+        "func": "function convertPayloadToObject(msg) {\n    let objArr = [];\n    for (const [key, value] of Object.entries(msg)) {\n        objArr.push({ key, value });\n    }\n    return objArr;\n}\nif (!msg.payload.error) {\n    msg.payload = {\n        succsess: true,\n        text: msg.payload.choices[0].text,\n        settings: convertPayloadToObject(msg.settings)\n    }\n} else {\n    msg.payload = {\n        succsess: false,\n        payload: msg.payload.error.code\n    }\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 60,
+        "wires": [
+            [
+                "c30c5ace3f3e3467",
+                "83598ba00550d1c6"
+            ]
+        ]
+    },
+    {
+        "id": "c30c5ace3f3e3467",
+        "type": "http response",
+        "z": "6d30ac04c610232c",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1050,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "83598ba00550d1c6",
+        "type": "debug",
+        "z": "6d30ac04c610232c",
+        "name": "succses",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1040,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "6f15f9333dcfcd79",
+        "type": "function",
+        "z": "6d30ac04c610232c",
+        "name": "Response",
+        "func": "function convertPayloadToObject(msg) {\n    let objArr = [];\n    for (const [key, value] of Object.entries(msg)) {\n        objArr.push({ key, value });\n    }\n    return objArr;\n}\n\nmsg.payload = {\n    settings: convertPayloadToObject(msg.settings)\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 120,
+        "wires": [
+            [
+                "6c4a4423da3f58d6"
+            ]
+        ]
+    },
+    {
+        "id": "6c4a4423da3f58d6",
+        "type": "http response",
+        "z": "6d30ac04c610232c",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 820,
+        "y": 120,
+        "wires": []
+    }
+]
